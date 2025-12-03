@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Thiệp Noel Bất Ngờ</title>
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+        font-family: 'Arial', sans-serif;
+        color: white;
+        text-align: center;
+    }
+    #bg-video {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        object-fit: cover;
+        z-index: 0;
+    }
+    .title {
+        position: absolute;
+        top: 10px;
+        width: 100%;
+        font-size: 42px;
+        font-weight: bold;
+        color: #fff;
+        animation: glow 2s ease-in-out infinite;
+        z-index: 20;
+    }
+    @keyframes glow {
+        0% { text-shadow: 0 0 10px #ff0000; }
+        50% { text-shadow: 0 0 20px #00ffea; }
+        100% { text-shadow: 0 0 10px #ff0000; }
+    }
+    .tree {
+        position: absolute;
+        left: 20px; /* Góc trái */
+        bottom: 20px; /* Dưới */
+        width: 250px; /* Kích thước cây */
+        z-index: 1;
+    }
+    .fall-item {
+        position: absolute;
+        top: -50px;
+        font-size: 30px;
+        cursor: pointer;
+        z-index: 10;
+        animation: fall linear forwards;
+        user-select: none;
+    }
+    @keyframes fall {
+        0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(110vh) rotate(360deg); opacity: 0.8; }
+    }
+    @keyframes pop {
+        0% { transform: scale(1); opacity: 1; }
+        100% { transform: scale(2); opacity: 0; }
+    }
+    #modal {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.85);
+        z-index: 100;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        animation: fadeIn 0.3s;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    #modal-content {
+        background: #fff;
+        color: #333;
+        padding: 20px;
+        border-radius: 15px;
+        max-width: 90%;
+        max-height: 80%;
+        text-align: center;
+        box-shadow: 0 0 20px gold;
+        overflow-y: auto;
+        position: relative;
+    }
+    #modal-img {
+        max-width: 100%;
+        max-height: 70vh;
+        border-radius: 10px;
+        display: none;
+        object-fit: contain;
+    }
+    #modal-text {
+        font-size: 18px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        display: none;
+        padding: 10px;
+        text-align: left;
+    }
+    #closeBtn {
+        margin-top: 15px;
+        padding: 8px 20px;
+        background: #d40000;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    .snow {
+        position: absolute;
+        top: -10px;
+        width: 6px;
+        height: 6px;
+        background: white;
+        border-radius: 50%;
+        opacity: 0.8;
+        animation: snowFall linear infinite;
+        pointer-events: none;
+    }
+    @keyframes snowFall { to { transform: translateY(110vh); opacity: 0; } }
+    #playVideoBtn {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 10px 20px;
+        background: #fff;
+        color: #000;
+        border-radius: 10px;
+        font-weight: bold;
+        z-index: 200;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+
+<video id="bg-video" loop>
+  <source src="video.mp4" type="video/mp4">
+</video>
+
+<div class="title">🎄 Merry Christmas 🎁</div>
+
+<button id="playVideoBtn">▶ Bật video và nhạc</button>
+<audio id="bgm" loop>
+    <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<!-- Cây thông góc trái -->
+<img src="https://i.postimg.cc/JnYSgwtw/Christmas-tree-decorations-removebg-preview.png" class="tree">
+
+.tree {
+     position: fixed;   /* cố định theo màn hình */
+    left: 50px;         /* dịch sang trái thêm 3 đơn vị */
+    bottom: 0;         /* sát mép dưới */
+    width: 220px;      /* kích thước vừa phải */
+    z-index: 1;
+}
+
+/* Yêu tinh chạy ngang rồi quay lại cây */
+.elf {
+    position: fixed;
+    bottom: 60px;      /* ngang với gốc cây */
+    width: 80px;
+    z-index: 2;
+    animation: runElf linear forwards;
+}
+
+@keyframes runElf {
+    0%   { left: -100px; }
+    100% { left: 100vw; }
+}
+</style>
+
+<script>
+// Link ảnh yêu tinh
+const elfImages = [
+  "https://cdn.pixabay.com/photo/2018/12/07/21/38/christmas-3862474_1280.png"
+];
+
+// Hàm sinh yêu tinh
+function spawnElf() {
+    const elf = document.createElement("img");
+    elf.className = "elf";
+    elf.src = elfImages[0];
+    elf.style.bottom = (40 + Math.random()*30) + "px";
+    elf.style.animationDuration = (5 + Math.random()*3) + "s";
+
+    // Khi chạy xong → quay lại góc cây thông
+    elf.addEventListener("animationend", () => {
+        elf.style.animation = "none";
+        elf.style.left = "20px";   // sát cây thông
+        elf.style.bottom = "60px";
+    });
+
+    document.body.appendChild(elf);
+
+    // remove sau 15s để tránh quá tải
+    setTimeout(() => { if (elf.parentNode) elf.remove(); }, 15000);
+}
+
+// Sinh yêu tinh mỗi 3 giây
+setInterval(spawnElf, 3000);
+</script>
+
+
+<div id="modal">
+    <div id="modal-content">
+        <h2 id="modal-title" style="color:#d40000;margin-top:0;"></h2>
+        <img id="modal-img" src="" alt="Gift">
+        <div id="modal-text"></div>
+        <button id="closeBtn">Đóng lại</button>
+    </div>
+</div>
+
+<script>
+const bgVideo = document.getElementById("bg-video");
+const bgm = document.getElementById("bgm");
+document.getElementById("playVideoBtn").onclick = () => {
+    bgVideo.play();
+    bgm.play();
+    document.getElementById("playVideoBtn").style.display = "none";
+};
+
+// Modal
+const modal = document.getElementById("modal");
+const modalImg = document.getElementById("modal-img");
+const modalText = document.getElementById("modal-text");
+const modalTitle = document.getElementById("modal-title");
+const closeBtn = document.getElementById("closeBtn");
+
+const images = [
+ "https://i.postimg.cc/zvRNxJwc/z7286461394854-35a1c3ef4c744e59fe6f7f5b0c2d8d67.jpg",
+ "https://i.postimg.cc/QKsvtZyS/z7286461395334-d62ab30a1daabc06344a994e87ecfbee.jpg",
+ "https://i.postimg.cc/sGybXCNm/z7286461395954-18e4d728adb9f0719dd29cf8add3d9c9.jpg",
+ "https://i.postimg.cc/p5x3TM6Z/z7286461397301-47b71b6e86304e54d67a07460408c3f9.jpg",
+ "https://i.postimg.cc/n9ZNzfPS/z7286461399572-e864ccbf2a54b4fc071cab3dae43c327.jpg",
+ "https://i.postimg.cc/MfDNf3Cd/z7286461401245-b0ba4740d261ba8aa1f8384a9ccee947.jpg",
+ "https://i.postimg.cc/V0Rp0ZxR/z7286461402828-6b04ced39b682e76e649b7f5bdab9d42.jpg",
+ "https://i.postimg.cc/2LwML9sH/z7286461402974-f73277fd68ea437e86473845b427e4fb.jpg",
+ "https://i.postimg.cc/YL3ZLD5D/z7286461405672-146cae4aa3247d79b1a5ff2bdc09c064.jpg",
+ "https://i.postimg.cc/y3Pt3pM2/z7286461405768-3bec483dcff35413f0b02050408bb34b.jpg",
+ "https://i.postimg.cc/WqnCqYBQ/z7286461407858-844bb643b4f1a9e721e25ee00c5e6a05.jpg",
+ "https://i.postimg.cc/FkZ8kCMM/z7286461408236-ed72170f459f8005f4203a0d10f63914.jpg",
+ "https://i.postimg.cc/QKbwKnL3/z7286461409776-6884635fd26a5dd0f3a1610a18fcab8c.jpg",
+ "https://i.postimg.cc/wRVZRbKq/z7286461410914-9ac975b1ecc300302cc3b82d2a653ca2.jpg",
+ "https://i.postimg.cc/MfDNfrkZ/z7286461412409-48bab9583f27cef3a53545f27a903690.jpg"
+];
+
+const letterContent = `
+Gửi người bạn iu nhất,
+
+Chúc bạn iu một mùa Giáng sinh thật ấm áp, an lành và thật nhiều điều bất ngờ!
+Mong rằng năm mới sẽ mang đến cho bạn iu thật nhiều may mắn và hạnh phúc.
+
+Hãy mở những hộp quà và tận hưởng âm nhạc nhé!
+
+Merry Christmas! 🎄✨
+
+Thân mến,
+[Điền tên của bạn vào đây]
+`;
+
+function showModal(type){
+    modal.style.display="flex";
+    if(type==="gift"){
+        modalTitle.innerText="Món quà bất ngờ 🎁";
+        modalImg.style.display="block";
+        modalText.style.display="none";
+        modalImg.src = images[Math.floor(Math.random()*images.length)];
+    } else if(type==="sock"){
+        modalTitle.innerText="Chiếc tất Giáng sinh 🧦";
+        modalImg.style.display="none";
+        modalText.style.display="block";
+        modalText.innerHTML = "Bạn đã tìm thấy một chiếc tất may mắn! 🎅";
+    } else {
+        modalTitle.innerText="Thư gửi bạn 💌";
+        modalImg.style.display="none";
+        modalText.style.display="block";
+        modalText.innerHTML = letterContent.replace(/\n/g,"<br>");
+    }
+}
+closeBtn.onclick = ()=> modal.style.display="none";
+
+// Items rơi
+const decorItems=["⭐","🔔","🍬","🍭","❄️"];
+const giftItem="🎁";
+const sockItem="🧦";
+let currentItems=0;
+const maxItems=40;
+
+function spawnItem(){
+    if(currentItems>=maxItems) return;
+    const el = document.createElement("div");
+    el.className="fall-item";
+    const r = Math.random();
+    let type="decor";
+    let icon;
+    if(r < 0.15){ icon = giftItem; type="gift"; }
+    else if(r < 0.25){ icon = sockItem; type="sock"; }
+    else icon = decorItems[Math.floor(Math.random()*decorItems.length)];
+    el.innerText = icon;
+    el.style.left = Math.random()*95 + "vw";
+    el.style.animationDuration = (5+Math.random()*4)+"s";
+    currentItems++;
+    el.onclick = (e)=>{
+        e.stopPropagation();
+        if(type==="gift") showModal("gift");
+        else if(type==="sock") showModal("sock");
+        else el.style.animation="pop 0.3s forwards";
+        setTimeout(()=>el.remove(),300);
+        currentItems--;
+    };
+    document.body.appendChild(el);
+    setTimeout(()=>{if(el.parentNode){el.remove();currentItems--; }},9000);
+}
+setInterval(spawnItem,650);
+
+// Snow
+function createSnow(){
+    const snow=document.createElement("div");
+    snow.className="snow";
+    snow.style.left=Math.random()*100+"vw";
+    snow.style.animationDuration=(8+Math.random()*5)+"s";
+    snow.style.opacity=Math.random();
+    const size=(Math.random()*6+4)+"px";
+    snow.style.width=size;
+    snow.style.height=size;
+    document.body.appendChild(snow);
+    setTimeout(()=>snow.remove(),12000);
+}
+setInterval(createSnow,120);
+
+</script>
+</body>
+</html>
