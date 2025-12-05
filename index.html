@@ -4,12 +4,54 @@
 <meta charset="UTF-8">
 <title>Thiệp Noel Bất Ngờ</title>
 <style>
+    /* --- CSS GỐC CỦA BẠN --- */
+	#resourceModal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 999999;
+}
+
+#resourceBox {
+    width: 90%;
+    height: 80%;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 20px #ff0000;
+    position: relative;
+}
+
+#resourceFrame {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+#resourceClose {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 8px 16px;
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
     body {
         margin: 0;
         overflow: hidden;
         font-family: 'Arial', sans-serif;
         color: white;
         text-align: center;
+        background: #000;
     }
     #bg-video {
         position: fixed;
@@ -25,6 +67,7 @@
         font-size: 42px;
         font-weight: bold;
         color: #fff;
+        text-shadow: 0 0 10px red;
         animation: glow 2s ease-in-out infinite;
         z-index: 20;
     }
@@ -34,11 +77,12 @@
         100% { text-shadow: 0 0 10px #ff0000; }
     }
     .tree {
-        position: absolute;
-        left: 20px; /* Góc trái */
-        bottom: 20px; /* Dưới */
-        width: 250px; /* Kích thước cây */
-        z-index: 1;
+        position: fixed;   
+        left: 20px;         
+        bottom: 0;         
+        width: 250px;      
+        z-index: 5;
+        pointer-events: none;
     }
     .fall-item {
         position: absolute;
@@ -63,7 +107,7 @@
         top: 0; left: 0;
         width: 100%; height: 100%;
         background: rgba(0,0,0,0.85);
-        z-index: 100;
+        z-index: 1000;
         justify-content: center;
         align-items: center;
         flex-direction: column;
@@ -84,7 +128,7 @@
     }
     #modal-img {
         max-width: 100%;
-        max-height: 70vh;
+        max-height: 60vh;
         border-radius: 10px;
         display: none;
         object-fit: contain;
@@ -110,18 +154,18 @@
     .snow {
         position: absolute;
         top: -10px;
-        width: 6px;
-        height: 6px;
+        width: 6px; height: 6px;
         background: white;
         border-radius: 50%;
         opacity: 0.8;
         animation: snowFall linear infinite;
         pointer-events: none;
+        z-index: 1;
     }
     @keyframes snowFall { to { transform: translateY(110vh); opacity: 0; } }
     #playVideoBtn {
         position: absolute;
-        top: 20px;
+        top: 100px;
         left: 50%;
         transform: translateX(-50%);
         padding: 10px 20px;
@@ -131,6 +175,60 @@
         font-weight: bold;
         z-index: 200;
         cursor: pointer;
+        box-shadow: 0 0 10px rgba(255,255,255,0.8);
+    }
+
+    /* --- CSS MỚI THÊM CHO ÔNG GIÀ NOEL VÀ YÊU TINH --- */
+    .santa-cls {
+        position: fixed;
+        top: 50px;
+        width: 200px;
+        z-index: 8;
+        pointer-events: none; /* Không cho click vào ông già noel, chỉ click quà */
+        animation: flySanta 18s linear infinite;
+    }
+    @keyframes flySanta {
+        0% { left: -300px; transform: translateY(0); }
+        25% { transform: translateY(25px); }
+        50% { transform: translateY(0); }
+        75% { transform: translateY(-25px); }
+        100% { left: 110vw; transform: translateY(0); }
+    }
+    .dropped-gift {
+        position: fixed;
+        z-index: 9;
+        font-size: 40px;
+        cursor: pointer;
+        /* Rơi nhanh hơn các item khác một chút */
+        animation: dropDownSanta 3s linear forwards;
+    }
+    @keyframes dropDownSanta {
+        0% { transform: translateY(0) rotate(0); }
+        100% { transform: translateY(100vh) rotate(360deg); }
+    }
+
+    .running-elf {
+        position: fixed;
+        bottom: 20px;
+        width: 100px;
+        z-index: 15;
+        cursor: pointer;
+        transition: transform 0.1s;
+    }
+    .running-elf:active { transform: scale(0.9); }
+
+    /* Hiệu ứng nổ pháo hoa (placeholder cho yêu cầu sau này) */
+    .particle {
+        position: fixed;
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        pointer-events: none;
+        animation: particleFade 1s ease-out forwards;
+        z-index: 999;
+    }
+    @keyframes particleFade {
+        0% { opacity: 1; transform: scale(1); }
+        100% { opacity: 0; transform: scale(3) translate(var(--tx), var(--ty)); }
     }
 </style>
 </head>
@@ -142,68 +240,12 @@
 
 <div class="title">🎄 Merry Christmas 🎁</div>
 
-<button id="playVideoBtn">▶ Bật video và nhạc</button>
+<button id="playVideoBtn">▶ Bật Video và Nhạc</button>
 <audio id="bgm" loop>
     <source src="music.mp3" type="audio/mpeg">
 </audio>
 
-<!-- Cây thông góc trái -->
 <img src="https://i.postimg.cc/JnYSgwtw/Christmas-tree-decorations-removebg-preview.png" class="tree">
-
-.tree {
-     position: fixed;   /* cố định theo màn hình */
-    left: 50px;         /* dịch sang trái thêm 3 đơn vị */
-    bottom: 0;         /* sát mép dưới */
-    width: 220px;      /* kích thước vừa phải */
-    z-index: 1;
-}
-
-/* Yêu tinh chạy ngang rồi quay lại cây */
-.elf {
-    position: fixed;
-    bottom: 60px;      /* ngang với gốc cây */
-    width: 80px;
-    z-index: 2;
-    animation: runElf linear forwards;
-}
-
-@keyframes runElf {
-    0%   { left: -100px; }
-    100% { left: 100vw; }
-}
-</style>
-
-<script>
-// Link ảnh yêu tinh
-const elfImages = [
-  "https://cdn.pixabay.com/photo/2018/12/07/21/38/christmas-3862474_1280.png"
-];
-
-// Hàm sinh yêu tinh
-function spawnElf() {
-    const elf = document.createElement("img");
-    elf.className = "elf";
-    elf.src = elfImages[0];
-    elf.style.bottom = (40 + Math.random()*30) + "px";
-    elf.style.animationDuration = (5 + Math.random()*3) + "s";
-
-    // Khi chạy xong → quay lại góc cây thông
-    elf.addEventListener("animationend", () => {
-        elf.style.animation = "none";
-        elf.style.left = "20px";   // sát cây thông
-        elf.style.bottom = "60px";
-    });
-
-    document.body.appendChild(elf);
-
-    // remove sau 15s để tránh quá tải
-    setTimeout(() => { if (elf.parentNode) elf.remove(); }, 15000);
-}
-
-// Sinh yêu tinh mỗi 3 giây
-setInterval(spawnElf, 3000);
-</script>
-
 
 <div id="modal">
     <div id="modal-content">
@@ -213,24 +255,41 @@ setInterval(spawnElf, 3000);
         <button id="closeBtn">Đóng lại</button>
     </div>
 </div>
-
+<div id="resourceModal">
+    <div id="resourceBox">
+        <iframe id="resourceFrame"></iframe>
+        <button id="resourceClose">Đóng</button>
+    </div>
+</div>
 <script>
+/* ================= CẤU HÌNH CƠ BẢN (ĐÃ KHÔI PHỤC) ================= */
 const bgVideo = document.getElementById("bg-video");
 const bgm = document.getElementById("bgm");
-document.getElementById("playVideoBtn").onclick = () => {
+const playBtn = document.getElementById("playVideoBtn");
+const effectWebs = [
+    "https://duyanh20086a2-bit.github.io/5/",
+    "https://duyanh20086a2-bit.github.io/4/",
+    "https://duyanh20086a2-bit.github.io/7/",
+	"https://duyanh20086a2-bit.github.io/6/"
+];
+
+playBtn.onclick = () => {
     bgVideo.play();
     bgm.play();
-    document.getElementById("playVideoBtn").style.display = "none";
+    playBtn.style.display = "none";
 };
 
-// Modal
+// Modal elements
 const modal = document.getElementById("modal");
 const modalImg = document.getElementById("modal-img");
 const modalText = document.getElementById("modal-text");
 const modalTitle = document.getElementById("modal-title");
 const closeBtn = document.getElementById("closeBtn");
 
-const images = [
+closeBtn.onclick = ()=> modal.style.display="none";
+
+// ĐÃ KHÔI PHỤC DANH SÁCH ẢNH GỐC CỦA BẠN
+const originalGiftImages = [
  "https://i.postimg.cc/zvRNxJwc/z7286461394854-35a1c3ef4c744e59fe6f7f5b0c2d8d67.jpg",
  "https://i.postimg.cc/QKsvtZyS/z7286461395334-d62ab30a1daabc06344a994e87ecfbee.jpg",
  "https://i.postimg.cc/sGybXCNm/z7286461395954-18e4d728adb9f0719dd29cf8add3d9c9.jpg",
@@ -262,33 +321,139 @@ Thân mến,
 [Điền tên của bạn vào đây]
 `;
 
-function showModal(type){
+// Hàm hiển thị Modal (đã cập nhật để hỗ trợ các loại click khác nhau)
+function showModal(type, customMsg = ""){
     modal.style.display="flex";
+    modalImg.style.display="none";
+    modalText.style.display="none";
+    
     if(type==="gift"){
+        // Mở quà ngẫu nhiên từ danh sách gốc
         modalTitle.innerText="Món quà bất ngờ 🎁";
         modalImg.style.display="block";
-        modalText.style.display="none";
-        modalImg.src = images[Math.floor(Math.random()*images.length)];
+        modalImg.src = originalGiftImages[Math.floor(Math.random()*originalGiftImages.length)];
     } else if(type==="sock"){
         modalTitle.innerText="Chiếc tất Giáng sinh 🧦";
-        modalImg.style.display="none";
         modalText.style.display="block";
         modalText.innerHTML = "Bạn đã tìm thấy một chiếc tất may mắn! 🎅";
-    } else {
+    } else if(type==="letter"){
         modalTitle.innerText="Thư gửi bạn 💌";
-        modalImg.style.display="none";
         modalText.style.display="block";
         modalText.innerHTML = letterContent.replace(/\n/g,"<br>");
+    } else if(type==="special"){
+        // Dùng cho quà của Ông già Noel hoặc Yêu tinh
+        modalTitle.innerText="Thông điệp đặc biệt! ✨";
+        modalText.style.display="block";
+        modalText.innerHTML = customMsg;
     }
 }
-closeBtn.onclick = ()=> modal.style.display="none";
 
-// Items rơi
+/* ================= TÍNH NĂNG MỚI: ÔNG GIÀ NOEL ================= */
+const santaGif = "https://d23j1yojw6x37d.cloudfront.net/w1bn5q%2Fpreview%2F73443863%2Fmain_large.png?response-content-disposition=inline%3Bfilename%3D%22main_large.png%22%3B&response-content-type=image%2Fpng&Expires=1764956130&Signature=DNftpMehbssD5WXBQyo~xF13vwOUYRhtXFf4VWVlSHgcGNcGdK6vYlEKOVMFiLqY-fHwirn7kb8IvVYs6YCXOcmla3JaTu-RbRdqxsGwzM5N4a55SMk8mMCArGwZGs0uBIjk5YQC7zIEOmTNglkhSQ6eE3HVnmgaJot4iwdrZ9vekl2-FW09W6tK6MOBSrkAlvKpVCVWvBCjHeP6D6nV5SOKP-iiD3ir40ins0UNs-ZoZjGdBsLXeeCfdqrl80TuTJq2yEAuSAhRCTixcOCIHhgiHllRdOQTvsCJZpjdj94cO-mx4wHInl4N9mV5gDg5Dt5nwmb0V2AHyIFjd5fkZQ__&Key-Pair-Id=APKAJT5WQLLEOADKLHBQ"; 
+
+function createSanta() {
+    const santa = document.createElement("img");
+    santa.src = santaGif;
+    santa.className = "santa-cls";
+    document.body.appendChild(santa);
+
+    // Thả quà ngẫu nhiên khi đang bay
+    setInterval(() => {
+        const rect = santa.getBoundingClientRect();
+        // Chỉ thả khi ở trong màn hình
+        if(rect.left > 50 && rect.left < window.innerWidth - 100) {
+            if(Math.random() < 0.2) { // 20% cơ hội thả mỗi lần check
+                dropGiftFromSanta(rect.left + 80, rect.top + 60);
+            }
+        }
+    }, 1000);
+}
+createSanta();
+
+function dropGiftFromSanta(x, y) {
+    const gift = document.createElement("div");
+    gift.className = "dropped-gift";
+    gift.innerText = "🎁";
+    gift.style.left = x + "px";
+    gift.style.top = y + "px";
+    
+    gift.onclick = (e) => {
+        e.stopPropagation();
+        triggerSpecialEffect(e.clientX, e.clientY); // Nổ hiệu ứng
+        showModal("special", "Ông già Noel đã thả món quà này xuống cho bạn!<br>Giáng sinh vui vẻ!");
+        gift.remove();
+    };
+    document.body.appendChild(gift);
+    setTimeout(() => { if(gift.parentNode) gift.remove(); }, 2900);
+}
+
+/* ================= TÍNH NĂNG MỚI: YÊU TINH CHẠY ================= */
+const elfImgUrl = "https://pouch.jumpshare.com/preview/QH8FYxs00aGZlZ2obDPECPJPOcHY4mKD4QmQqrzACoY6vjBptXeuguyMMdEzGfQxWU9jK8c7NYwO8U2D6w9nv7GvYw4uYWN7xT5KckX6VYQ";
+
+function spawnElf() {
+    const elf = document.createElement("div");
+    elf.className = "running-elf";
+    const direction = Math.random() > 0.5 ? 'left' : 'right';
+    elf.style.bottom = (30 + Math.random()*80) + "px";
+    
+    const flip = direction === 'left' ? 'scaleX(1)' : 'scaleX(-1)';
+    elf.innerHTML = `
+        <div style="position:relative; transform: ${flip};">
+            <img src="${elfImgUrl}" style="width:100%; display:block;">
+            <div style="position:absolute; top:25px; right:5px; font-size:28px;">🎁</div>
+        </div>
+    `;
+
+    const duration = 6 + Math.random() * 4;
+    elf.style.transition = `left ${duration}s linear`;
+    
+    if (direction === 'left') {
+        elf.style.left = "-150px";
+        document.body.appendChild(elf);
+        requestAnimationFrame(() => { elf.style.left = "110vw"; });
+    } else {
+        elf.style.left = "110vw";
+        document.body.appendChild(elf);
+        requestAnimationFrame(() => { elf.style.left = "-150px"; });
+    }
+
+elf.onclick = (e) => {
+    e.stopPropagation();
+    triggerSpecialEffect(e.clientX, e.clientY);
+    openRandomEffectWindow(); // mở web hiệu ứng RANDOM
+    elf.style.opacity = "0";
+    setTimeout(() => elf.remove(), 500);
+};
+
+
+    setTimeout(() => { if(elf.parentNode) elf.remove(); }, duration * 1000);
+}
+setInterval(spawnElf, 5000); // Yêu tinh xuất hiện mỗi 5s
+
+/* ================= HIỆU ỨNG NỔ (PLACEHOLDER CHO CODE SAU NÀY) ================= */
+function triggerSpecialEffect(x, y) {
+    const colors = ['#ff0000', '#00ff00', '#ffff00', '#00ffff', '#ff00ff', 'gold'];
+    for (let i = 0; i < 30; i++) {
+        const p = document.createElement("div");
+        p.className = "particle";
+        p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        p.style.left = x + "px";
+        p.style.top = y + "px";
+        const angle = Math.random() * Math.PI * 2;
+        const velocity = 60 + Math.random() * 120;
+        p.style.setProperty('--tx', Math.cos(angle) * velocity + "px");
+        p.style.setProperty('--ty', Math.sin(angle) * velocity + "px");
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 1000);
+    }
+}
+
+/* ================= CÁC TÍNH NĂNG CŨ (ITEMS RƠI, TUYẾT) ================= */
 const decorItems=["⭐","🔔","🍬","🍭","❄️"];
 const giftItem="🎁";
 const sockItem="🧦";
 let currentItems=0;
-const maxItems=40;
+const maxItems=30;
 
 function spawnItem(){
     if(currentItems>=maxItems) return;
@@ -302,20 +467,24 @@ function spawnItem(){
     else icon = decorItems[Math.floor(Math.random()*decorItems.length)];
     el.innerText = icon;
     el.style.left = Math.random()*95 + "vw";
-    el.style.animationDuration = (5+Math.random()*4)+"s";
+    el.style.animationDuration = (5+Math.random()*5)+"s";
     currentItems++;
+    
     el.onclick = (e)=>{
         e.stopPropagation();
-        if(type==="gift") showModal("gift");
+        if(type==="gift") showModal("gift"); // Sẽ mở ảnh từ danh sách gốc
         else if(type==="sock") showModal("sock");
-        else el.style.animation="pop 0.3s forwards";
+        else {
+            el.style.animation="pop 0.3s forwards";
+            triggerSpecialEffect(e.clientX, e.clientY); // Thêm hiệu ứng nổ cho vui
+        }
         setTimeout(()=>el.remove(),300);
         currentItems--;
     };
     document.body.appendChild(el);
     setTimeout(()=>{if(el.parentNode){el.remove();currentItems--; }},9000);
 }
-setInterval(spawnItem,650);
+setInterval(spawnItem, 700);
 
 // Snow
 function createSnow(){
@@ -330,7 +499,17 @@ function createSnow(){
     document.body.appendChild(snow);
     setTimeout(()=>snow.remove(),12000);
 }
-setInterval(createSnow,120);
+setInterval(createSnow, 150);
+
+/* === HÀM MỞ CỬA SỔ HIỆU ỨNG RANDOM === */
+function openRandomEffectWindow() {
+    const pick = effectWebs[Math.floor(Math.random() * effectWebs.length)];
+    document.getElementById("resourceFrame").src = pick;
+    document.getElementById("resourceModal").style.display = "flex";
+}
+document.getElementById("resourceClose").onclick = () => {
+    document.getElementById("resourceModal").style.display = "none";
+};
 
 </script>
 </body>
