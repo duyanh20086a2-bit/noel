@@ -308,17 +308,17 @@ const originalGiftImages = [
 ];
 
 const letterContent = `
-Gửi người bạn iu nhất,
+Năm nay là năm Noel đầu tiên của bọn mình.
 
-Chúc bạn iu một mùa Giáng sinh thật ấm áp, an lành và thật nhiều điều bất ngờ!
-Mong rằng năm mới sẽ mang đến cho bạn iu thật nhiều may mắn và hạnh phúc.
+Lần đầu tớ thấy được cảm giác được yêu thương và được trân trọng khi thấy bạn chuẩn bị quà cho tớ.  
+Tớ vui lắm á, vì biết được tình cảm của cậu dành cho tớ và càng ngày càng trân trọng nó.
 
-Hãy mở những hộp quà và tận hưởng âm nhạc nhé!
+Tớ chỉ muốn nói rằng… tớ iu bạn.  
+Cảm ơn bạn rất nhiều vì tất cả.
 
-Merry Christmas! 🎄✨
+Và tớ có một điều ước trong đêm Giáng sinh này:  
+bọn mình sẽ có với nhau thật nhiều đêm Giáng sinh nữa.
 
-Thân mến,
-[Điền tên của bạn vào đây]
 `;
 
 // Hàm hiển thị Modal (đã cập nhật để hỗ trợ các loại click khác nhau)
@@ -349,7 +349,7 @@ function showModal(type, customMsg = ""){
 }
 
 /* ================= TÍNH NĂNG MỚI: ÔNG GIÀ NOEL ================= */
-const santaGif = "https://d23j1yojw6x37d.cloudfront.net/w1bn5q%2Fpreview%2F73443863%2Fmain_large.png?response-content-disposition=inline%3Bfilename%3D%22main_large.png%22%3B&response-content-type=image%2Fpng&Expires=1764958898&Signature=hnm2YapmSabKji0HpW7~qFuy367CCUHBYd45mOh4eUK3aw2BoSQ9QAkOgNdTorfEftbLoo5yaZxnog3bVi5MwLET57h6-TcG7UDUQT9~FRZvhEtkOQuBNFwUj6OuEaQ8LZTIeItLQ95KWTQUJ0a6UFzj9uAn23kx~75mMpSn3s~NiCnJnM-ZirEV3Mwdpnra9Voy4zFeQGe3OWSxtM8WZS6-EuTTPhdp5~mwMF1~TiHszfX~HMX3iRPrYSnMnhsIPPooEFfK9aLIMK9H5sZeR~2VLs6k7e4VsRHZrfiPhqjYE-XUFrSYbG4lMvRqM745KufDdHtMMWgbwfjvOR0UbA__&Key-Pair-Id=APKAJT5WQLLEOADKLHBQ"; 
+const santaGif = "https://i.postimg.cc/fbWMLKTt/Chat-GPT-Image-20-13-34-22-thg-12-2025.png"; 
 
 function createSanta() {
     const santa = document.createElement("img");
@@ -388,7 +388,7 @@ function dropGiftFromSanta(x, y) {
 }
 
 /* ================= TÍNH NĂNG MỚI: YÊU TINH CHẠY ================= */
-const elfImgUrl = "https://pouch.jumpshare.com/preview/QH8FYxs00aGZlZ2obDPECPJPOcHY4mKD4QmQqrzACoY6vjBptXeuguyMMdEzGfQxWU9jK8c7NYwO8U2D6w9nv7GvYw4uYWN7xT5KckX6VYQ";
+const elfImgUrl = "https://i.postimg.cc/hPxmbS8T/Thiet-ke-chua-co-ten-12-removebg-preview.png";
 
 function spawnElf() {
     const elf = document.createElement("div");
@@ -452,6 +452,7 @@ function triggerSpecialEffect(x, y) {
 const decorItems=["⭐","🔔","🍬","🍭","❄️"];
 const giftItem="🎁";
 const sockItem="🧦";
+const letterItem = "💌";
 let currentItems=0;
 const maxItems=30;
 
@@ -462,9 +463,10 @@ function spawnItem(){
     const r = Math.random();
     let type="decor";
     let icon;
-    if(r < 0.15){ icon = giftItem; type="gift"; }
-    else if(r < 0.25){ icon = sockItem; type="sock"; }
-    else icon = decorItems[Math.floor(Math.random()*decorItems.length)];
+   if (r < 0.12) { icon = giftItem; type = "gift"; }
+else if (r < 0.20) { icon = sockItem; type = "sock"; }
+else if (r < 0.25) { icon = letterItem; type = "letter"; }
+else icon = decorItems[Math.floor(Math.random() * decorItems.length)];
     el.innerText = icon;
     el.style.left = Math.random()*95 + "vw";
     el.style.animationDuration = (5+Math.random()*5)+"s";
@@ -474,6 +476,7 @@ function spawnItem(){
         e.stopPropagation();
         if(type==="gift") showModal("gift"); // Sẽ mở ảnh từ danh sách gốc
         else if(type==="sock") showModal("sock");
+		else if(type==="letter") showModal("letter");
         else {
             el.style.animation="pop 0.3s forwards";
             triggerSpecialEffect(e.clientX, e.clientY); // Thêm hiệu ứng nổ cho vui
@@ -514,4 +517,3 @@ document.getElementById("resourceClose").onclick = () => {
 </script>
 </body>
 </html>
-
